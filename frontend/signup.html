@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Signup</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>📝 Create Account</h2>
+
+    <input type="text"
+           id="username"
+           placeholder="Username">
+
+    <input type="password"
+           id="password"
+           placeholder="Password">
+
+    <input type="text"
+           id="name"
+           placeholder="Full Name">
+
+    <input type="email"
+           id="email"
+           placeholder="Email">
+
+    <input type="number"
+           id="balance"
+           placeholder="Initial Balance">
+
+    <button onclick="signup()">
+        Signup
+    </button>
+
+    <p id="message"></p>
+
+    <br>
+
+    <a href="index.html">
+        Already have account? Login
+    </a>
+
+</div>
+
+<script>
+
+async function signup() {
+
+    const username =
+        document.getElementById("username").value;
+
+    const password =
+        document.getElementById("password").value;
+
+    const name =
+        document.getElementById("name").value;
+
+    const email =
+        document.getElementById("email").value;
+
+    const balance =
+        document.getElementById("balance").value;
+
+    try {
+
+        // STEP 1 → create user
+        const response = await fetch(
+            "http://localhost:8080/auth/signup",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                    role: "ROLE_USER"
+                })
+            }
+        );
+
+        const data = await response.text();
+
+        if (!response.ok) {
+
+            document.getElementById("message")
+                .innerText = data;
+
+            return;
+        }
+
+        // STEP 2 → auto login
+        const loginResponse = await fetch(
+            "http://localhost:8080/auth/login",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            }
+        );
+
+        const token = await loginResponse.text();
+
+        localStorage.setItem("token", token);
+
+        // STEP 3 → create account
+        await fetch(
+            "http://localhost:8080/accounts",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization":
+                        "Bearer " + token
+                },
+
+                body: JSON.stringify({
+                    username: username,
+                    name: name,
+                    email: email,
+                    balance: balance
+                })
+            }
+        );
+
+        // STEP 4 → dashboard
+        window.location.href =
+            "dashboard.html";
+
+    } catch(error) {
+
+        console.log(error);
+
+        document.getElementById("message")
+            .innerText =
+            "Signup failed";
+    }
+}
+
+</script>
+
+</body>
+</html>

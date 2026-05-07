@@ -13,7 +13,7 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    
+
     private Long id;
     @NotBlank(message = "Name cannot be empty")
     private String name;
@@ -22,11 +22,13 @@ public class Account {
     private String email;
     @PositiveOrZero(message = "Balance cannot be negative")
     private double balance;
-    
 
+    private boolean frozen = false;
+    private boolean approved = true;
+    private String username;
     // getters and setters
 
-     public Long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -56,5 +58,21 @@ public class Account {
 
     public void setBalance(double balance) {
         this.balance = balance;
+    }
+
+    public boolean isFrozen() {
+        return frozen;
+    }
+
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
+    }
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
     }
 }

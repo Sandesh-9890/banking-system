@@ -32,12 +32,19 @@ public class AccountService {
 
     // ✅ Deposit
     public Account deposit(Long id, double amount) {
+
         Account acc = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        // ✅ Frozen check
+        if (acc.isFrozen()) {
+            throw new RuntimeException("Account is frozen");
+        }
 
         acc.setBalance(acc.getBalance() + amount);
 
         Transaction t = new Transaction();
+
         t.setToAccountId(id);
         t.setAmount(amount);
         t.setType("DEPOSIT");
@@ -50,20 +57,29 @@ public class AccountService {
 
     // ✅ Withdraw
     public Account withdraw(Long id, double amount) {
+
         Account acc = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
+        // ✅ Frozen check
+        if (acc.isFrozen()) {
+            throw new RuntimeException("Account is frozen");
+        }
+
         if (amount <= 0) {
-            throw new RuntimeException("Amount must be greater than 0");
+            throw new RuntimeException(
+                    "Amount must be greater than 0");
         }
 
         if (acc.getBalance() < amount) {
-            throw new RuntimeException("Insufficient balance");
+            throw new RuntimeException(
+                    "Insufficient balance");
         }
 
         acc.setBalance(acc.getBalance() - amount);
 
         Transaction t = new Transaction();
+
         t.setFromAccountId(id);
         t.setAmount(amount);
         t.setType("WITHDRAW");
@@ -75,14 +91,18 @@ public class AccountService {
     }
 
     // ✅ Transfer
-    public String transfer(Long fromId, Long toId, double amount) {
+    public String transfer(Long fromId,
+            Long toId,
+            double amount) {
 
         if (fromId.equals(toId)) {
-            throw new RuntimeException("Cannot transfer to same account");
+            throw new RuntimeException(
+                    "Cannot transfer to same account");
         }
 
         if (amount <= 0) {
-            throw new RuntimeException("Amount must be greater than 0");
+            throw new RuntimeException(
+                    "Amount must be greater than 0");
         }
 
         Account sender = repo.findById(fromId)
@@ -91,17 +111,33 @@ public class AccountService {
         Account receiver = repo.findById(toId)
                 .orElseThrow(() -> new RuntimeException("Receiver not found"));
 
-        if (sender.getBalance() < amount) {
-            throw new RuntimeException("Insufficient balance");
+        // ✅ Frozen checks
+        if (sender.isFrozen()) {
+            throw new RuntimeException(
+                    "Sender account is frozen");
         }
 
-        sender.setBalance(sender.getBalance() - amount);
-        receiver.setBalance(receiver.getBalance() + amount);
+        if (receiver.isFrozen()) {
+            throw new RuntimeException(
+                    "Receiver account is frozen");
+        }
+
+        if (sender.getBalance() < amount) {
+            throw new RuntimeException(
+                    "Insufficient balance");
+        }
+
+        sender.setBalance(
+                sender.getBalance() - amount);
+
+        receiver.setBalance(
+                receiver.getBalance() + amount);
 
         repo.save(sender);
         repo.save(receiver);
 
         Transaction t = new Transaction();
+
         t.setFromAccountId(fromId);
         t.setToAccountId(toId);
         t.setAmount(amount);
@@ -118,8 +154,18 @@ public class AccountService {
         return transactionRepo.findAll();
     }
 
-    // ✅ 🔥 IMPORTANT: Get user-specific transactions (THIS WAS MISSING)
+    // ✅ User-specific transactions
     public List<Transaction> getUserTransactions(Long id) {
-        return transactionRepo.findByFromAccountIdOrToAccountId(id, id);
+
+        return transactionRepo
+                .findByFromAccountIdOrToAccountId(id, id);
+    }
+
+    public Account getMyAccount(
+            String username) {
+
+        return repo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException(
+                        "Account not found"));
     }
 }

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Secure Bank Login</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="profile-card">
+
+        <i class="fa-solid fa-building-columns profile-icon"></i>
+
+        <h2>Secure Banking System</h2>
+
+        <p>
+            Login to continue
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h3>
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Login
+        </h3>
+
+        <input type="text"
+               id="username"
+               placeholder="Enter Username">
+
+        <input type="password"
+               id="password"
+               placeholder="Enter Password">
+
+        <button onclick="login()">
+            Login
+        </button>
+
+        <p id="message"></p>
+
+        <br>
+
+        <a href="signup.html">
+            Create New Account
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+
+async function login() {
+
+    const username =
+        document.getElementById("username").value;
+
+    const password =
+        document.getElementById("password").value;
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:8080/auth/login",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            }
+        );
+
+        const token = await response.text();
+
+        // login failed
+        if (!response.ok ||
+            token === "Invalid credentials" ||
+            token === "User not found") {
+
+            document.getElementById("message")
+                .innerText =
+                token;
+
+            return;
+        }
+
+        // save token
+        localStorage.setItem("token", token);
+
+        // decode JWT payload
+        const payload =
+            JSON.parse(
+                atob(token.split(".")[1])
+            );
+
+        const role = payload.role;
+
+        // role-based redirect
+        if (role === "ROLE_ADMIN") {
+
+            window.location.href =
+                "admin.html";
+
+        } else {
+
+            window.location.href =
+                "dashboard.html";
+        }
+
+    } catch(error) {
+
+        console.log(error);
+
+        document.getElementById("message")
+            .innerText =
+            "Login failed";
+    }
+}
+
+</script>
+
+</body>
+</html>

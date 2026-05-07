@@ -7,11 +7,16 @@ import jakarta.validation.Valid;
 import com.example.demo.model.Account;
 import com.example.demo.model.Transaction;
 import com.example.demo.service.AccountService;
+import com.example.demo.repository.UserRepository;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/accounts")
 @CrossOrigin
 public class AccountController {
+
+    @Autowired
+    private UserRepository userRepo;
 
     @Autowired
     private AccountService service;
@@ -37,8 +42,8 @@ public class AccountController {
     // ✅ Transfer (FIXED)
     @PostMapping("/transfer")
     public String transfer(@RequestParam Long fromId,
-                           @RequestParam Long toId,
-                           @RequestParam double amount) {
+            @RequestParam Long toId,
+            @RequestParam double amount) {
         return service.transfer(fromId, toId, amount);
     }
 
@@ -58,5 +63,13 @@ public class AccountController {
     @GetMapping("/{id}/transactions")
     public List<Transaction> getUserTransactions(@PathVariable Long id) {
         return service.getUserTransactions(id);
+    }
+
+    @GetMapping("/my-account")
+    public Account getMyAccount(
+            Principal principal) {
+
+        return service.getMyAccount(
+                principal.getName());
     }
 }

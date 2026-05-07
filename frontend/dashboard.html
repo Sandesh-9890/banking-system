@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bank Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+
+        <h1>🏦 Secure Bank</h1>
+
+        <div>
+
+            <button onclick="toggleDarkMode()">
+                🌙 Dark Mode
+            </button>
+
+            <button onclick="logout()">
+                Logout
+            </button>
+
+        </div>
+
+    </nav>
+
+    <div class="container">
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+
+            <i class="fa-solid fa-user profile-icon"></i>
+
+            <h2>Welcome, Sandesh</h2>
+
+            <p>Secure Banking Dashboard</p>
+
+        </div>
+
+        
+        <!-- Accounts -->
+        <div class="card">
+
+            <h3>
+                <i class="fa-solid fa-wallet"></i>
+                Accounts
+            </h3>
+
+            <button onclick="loadAccounts()">
+                Load Accounts
+            </button>
+
+            <ul id="accountsList"></ul>
+
+        </div>
+
+        <!-- Deposit -->
+        <div class="card">
+
+            <h3>
+                <i class="fa-solid fa-money-bill-wave"></i>
+                Deposit Money
+            </h3>
+
+            <input type="number" id="depositId" placeholder="Account ID">
+
+            <input type="number" id="depositAmount" placeholder="Amount">
+
+            <button onclick="depositMoney()">
+                Deposit
+            </button>
+
+            <p id="depositMessage"></p>
+
+        </div>
+
+        <!-- Withdraw -->
+        <div class="card">
+
+            <h3>
+                <i class="fa-solid fa-money-bill-transfer"></i>
+                Withdraw Money
+            </h3>
+
+            <input type="number" id="withdrawId" placeholder="Account ID">
+
+            <input type="number" id="withdrawAmount" placeholder="Amount">
+
+            <button onclick="withdrawMoney()">
+                Withdraw
+            </button>
+
+            <p id="withdrawMessage"></p>
+
+        </div>
+
+        <!-- Transfer -->
+        <div class="card">
+
+            <h3>
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                Transfer Money
+            </h3>
+
+            <input type="number" id="fromId" placeholder="From Account ID">
+
+            <input type="number" id="toId" placeholder="To Account ID">
+
+            <input type="number" id="transferAmount" placeholder="Amount">
+
+            <button onclick="transferMoney()">
+                Transfer
+            </button>
+
+            <p id="transferMessage"></p>
+
+        </div>
+
+        <!-- Transactions -->
+        <div class="card">
+
+            <h3>
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Transaction History
+            </h3>
+
+            <button onclick="loadTransactions()">
+                Load Transactions
+            </button>
+
+            <ul id="transactionList"></ul>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        function toggleDarkMode() {
+
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function logout() {
+
+            localStorage.clear();
+
+            window.location.href = "index.html";
+        }
+
+        async function loadAccounts() {
+
+            const token =
+                localStorage.getItem("token");
+
+            const response = await fetch(
+                "http://localhost:8080/accounts/my-account",
+                {
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token
+                    }
+                }
+            );
+
+            if (!response.ok) {
+
+                alert("Account not found");
+
+                return;
+            }
+
+            const acc = await response.json();
+
+            const list =
+                document.getElementById("accountsList");
+
+            list.innerHTML = "";
+
+            const li =
+                document.createElement("li");
+
+            li.innerHTML =
+                "<strong>ID:</strong> " + acc.id +
+                "<br><strong>Name:</strong> " + acc.name +
+                "<br><strong>Email:</strong> " + acc.email +
+                "<br><strong>Balance:</strong> ₹" + acc.balance;
+
+            list.appendChild(li);
+        }
+
+        async function createAccount() {
+
+            const name =
+                document.getElementById("createName").value;
+
+            const email =
+                document.getElementById("createEmail").value;
+
+            const balance =
+                document.getElementById("createBalance").value;
+
+            const token =
+                localStorage.getItem("token");
+
+            const response = await fetch(
+                "http://localhost:8080/accounts",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        balance: balance
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+
+                document.getElementById("createMessage")
+                    .innerText =
+                    "Account Created Successfully!";
+
+                loadAccounts();
+
+            } else {
+
+                document.getElementById("createMessage")
+                    .innerText =
+                    data.message;
+            }
+        }
+
+        async function depositMoney() {
+
+            const id =
+                document.getElementById("depositId").value;
+
+            const amount =
+                document.getElementById("depositAmount").value;
+
+            const token =
+                localStorage.getItem("token");
+
+            const response = await fetch(
+                `http://localhost:8080/accounts/deposit?id=${id}&amount=${amount}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            document.getElementById("depositMessage")
+                .innerText =
+                "Deposit Successful! Balance: ₹" + data.balance;
+
+            loadAccounts();
+        }
+
+        async function withdrawMoney() {
+
+            const id =
+                document.getElementById("withdrawId").value;
+
+            const amount =
+                document.getElementById("withdrawAmount").value;
+
+            const token =
+                localStorage.getItem("token");
+
+            const response = await fetch(
+                `http://localhost:8080/accounts/withdraw?id=${id}&amount=${amount}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+
+                document.getElementById("withdrawMessage")
+                    .innerText =
+                    "Withdraw Successful! Balance: ₹" + data.balance;
+
+                loadAccounts();
+
+            } else {
+
+                document.getElementById("withdrawMessage")
+                    .innerText =
+                    data.message;
+            }
+        }
+
+        async function transferMoney() {
+
+            const fromId =
+                document.getElementById("fromId").value;
+
+            const toId =
+                document.getElementById("toId").value;
+
+            const amount =
+                document.getElementById("transferAmount").value;
+
+            const token =
+                localStorage.getItem("token");
+
+            const response = await fetch(
+                `http://localhost:8080/accounts/transfer?fromId=${fromId}&toId=${toId}&amount=${amount}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                }
+            );
+
+            const data = await response.text();
+
+            document.getElementById("transferMessage")
+                .innerText = data;
+
+            loadAccounts();
+        }
+
+        async function loadTransactions() {
+
+            const token =
+                localStorage.getItem("token");
+
+            const response = await fetch(
+                "http://localhost:8080/accounts/transactions",
+                {
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            const list =
+                document.getElementById("transactionList");
+
+            list.innerHTML = "";
+
+            data.forEach(t => {
+
+                const li =
+                    document.createElement("li");
+
+                li.innerHTML =
+                    "<strong>Type:</strong> " + t.type +
+                    "<br><strong>Amount:</strong> ₹" + t.amount +
+                    "<br><strong>From:</strong> " + t.fromAccountId +
+                    "<br><strong>To:</strong> " + t.toAccountId;
+
+                list.appendChild(li);
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>
