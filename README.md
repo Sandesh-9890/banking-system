@@ -1,27 +1,107 @@
-# Banking System (Spring Boot + JWT)
+# 🏦 Secure Banking System
 
-##  Features
-- Account creation
-- Deposit / Withdraw
-- Fund Transfer
-- Transaction History
+A full-stack banking management system built using Spring Boot, MySQL, JWT Authentication, RBAC, and JavaScript frontend.
+
+---
+
+# 🚀 Features
+
+## 👤 Customer Features
+
+- User Signup/Login
 - JWT Authentication
-- Input Validation
-- Global Error Handling
+- View Own Account
+- Deposit Money
+- Withdraw Money
+- Transfer Money
+- Transaction History
+- Dark Mode UI
+- Responsive Dashboard
 
-## 🛠 Tech Stack
+---
+
+## 👨‍💼 Admin Features
+
+- Admin Login
+- Role-Based Access Control (RBAC)
+- View All Accounts
+- Search Customer Accounts
+- Freeze/Unfreeze Accounts
+- Delete Accounts
+- View All Transactions
+
+---
+
+# 🔐 Security Features
+
+- JWT Authentication
+- Protected APIs
+- Role-Based Authorization
+- User-specific account access
+- Secure token validation
+
+---
+
+# 🛠️ Tech Stack
+
+## Backend
 - Java 21
 - Spring Boot
+- Spring Security
+- Spring Data JPA
 - MySQL
-- JPA (Hibernate)
-- JWT (Authentication)
+- JWT
 
-## 🔐 Authentication
-- Login API returns JWT token
-- All account APIs are secured
+## Frontend
+- HTML
+- CSS
+- JavaScript
 
-## Run Backend
+---
 
-```bash
-mvn clean install
-mvn spring-boot:run
+
+# 📸 Project Screenshots
+
+## 🔐 Login Page
+
+![Login Page](screenshots/Login%20Page.png)
+
+---
+
+## 👤 User Login
+
+![User Login](screenshots/User%20Login.png)
+
+---
+
+## 💰 User Dashboard
+
+![User Dashboard](screenshots/user%20login%20with%20acc%20balance.png)
+
+---
+
+## 🌙 User Dark Mode
+
+![User Dark Mode](screenshots/User%20Panel%20Dark%20Mode.png)
+
+---
+
+## 👨‍💼 Admin Login
+
+![Admin Login](screenshots/Admin%20Login.png)
+
+---
+
+## 🛡️ Admin Dark Mode
+
+![Admin Dark Mode](screenshots/Admin%20Panel%20Dark%20Mode.png)
+
+# 📂 Project Structure
+
+```text
+Backend/
+Frontend/
+screenshots/
+README.md
+
+```
